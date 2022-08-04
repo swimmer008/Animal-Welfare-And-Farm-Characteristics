@@ -1,0 +1,839 @@
+******************************************************************************
+* Stata codes for article:                                                   *
+* "How do animal welfare practices relate to farm characeristics?            *
+* Evidence from German dairy farms"                                          *
+*									     *
+* Wimmer, S., & Frick, F. (2022). How Do Animal Welfare Practices Relate to  *
+* Farm Characteristics? Evidence from German Dairy Farms. Journal of 	     *
+* Agricultural and Resource Economics, 47(2), 427-443.			     *				     *
+*									     *
+******************************************************************************
+
+clear all
+
+* Set working directory
+
+	cd "Z:\Papers and Data\Paper Archive AECP\2021\Wimmer and Frick_JARE_Animal welfare\02_Replication"
+	
+
+* Load data
+
+	import delimited "data_animal welfare and farm characteristics.csv"
+	
+**********************************************************	
+* Generate dependent variables (=upper and lower limits) *
+**********************************************************
+
+	*Pasture access
+
+		gen ul_weide = -999 // Notation: "ul" denotes "upper limit"
+		gen ll_weide = -999 // Notation: "ll" denotes "lower limit"
+		
+		replace ll_weide = . if v_63==1
+		replace ul_weide = 0 if v_63==1 //ul is zero if already implemented
+
+		replace ul_weide = 1 if v_92==1 //ul is one if can be implemented with +0.01 EUR
+		replace ll_weide = 0 if v_92==1 //ll is zero if can be implemented with +0.01 EUR
+
+		replace ul_weide = 2 if v_100==1 //ul is 2 if can be implemented with +0.02 EUR
+		replace ll_weide = 1 if v_100==1 //ll is 1 if can be implemented with +0.02 EUR
+
+		replace ul_weide = 4 if v_116==1 //ul is 4 if can be implemented with +0.04 EUR
+		replace ll_weide = 2 if v_116==1 //ll is 2 if can be implemented with +0.04 EUR
+
+		replace ul_weide = 8 if v_124==1 //ul is 8 if can be implemented with +0.08 EUR
+		replace ll_weide = 4 if v_124==1 //ll is 4 if can be implemented with +0.08 EUR
+
+		replace ll_weide = 8 if v_63==0 & v_92==0 & v_100==0 & v_116==0 & v_124==0 //ll is 8 if cannot be implemented with +0.08 EUR
+		replace ul_weide = . if v_63==0 & v_92==0 & v_100==0 & v_116==0 & v_124==0
+		
+		tab ul_weide, miss
+		tab ll_weide, miss
+		
+			
+	*Outdoor access
+
+		gen ul_lauf = -999
+		gen ll_lauf = -999
+	
+		replace ll_lauf = . if v_64==1
+		replace ul_lauf = 0 if v_64==1
+
+		replace ul_lauf = 1 if v_93==1
+		replace ll_lauf = 0 if v_93==1
+
+		replace ul_lauf = 2 if v_101==1
+		replace ll_lauf = 1 if v_101==1
+
+		replace ul_lauf = 4 if v_117==1
+		replace ll_lauf = 2 if v_117==1
+
+		replace ul_lauf = 8 if v_125==1
+		replace ll_lauf = 4 if v_125==1
+
+		replace ll_lauf = 8 if v_64==0 & v_93==0 & v_101==0 & v_117==0 & v_125==0
+		replace ul_lauf = . if v_64==0 & v_93==0 & v_101==0 & v_117==0 & v_125==0
+		
+		tab ll_lauf, miss
+		tab ul_lauf, miss
+		drop if ul_lauf == -999 /* this deletes obs _n=84, which had only -77's from v_92 on (must have dropped the survey here) */
+		
+
+	*Deep cubicles
+
+		gen ul_tief = -999
+		gen ll_tief = -999
+
+		replace ll_tief = . if v_65==1
+		replace ul_tief = 0 if v_65==1
+
+		replace ul_tief = 1 if v_94==1
+		replace ll_tief = 0 if v_94==1
+
+		replace ul_tief = 2 if v_102==1
+		replace ll_tief = 1 if v_102==1
+
+		replace ul_tief = 4 if v_118==1
+		replace ll_tief = 2 if v_118==1
+
+		replace ul_tief = 8 if v_126==1
+		replace ll_tief = 4 if v_126==1
+
+		replace ll_tief = 8 if v_65==0 & v_94==0 & v_102==0 & v_118==0 & v_126==0
+		replace ul_tief = . if v_65==0 & v_94==0 & v_102==0 & v_118==0 & v_126==0
+		
+		tab ll_tief, miss
+		tab ul_tief, miss
+
+
+	*Space >6m2
+
+		gen ul_platz = -999
+		gen ll_platz = -999
+
+		replace ll_platz = . if v_66==1
+		replace ul_platz = 0 if v_66==1
+
+		replace ul_platz = 1 if v_95==1
+		replace ll_platz = 0 if v_95==1
+
+		replace ul_platz = 2 if v_103==1
+		replace ll_platz = 1 if v_103==1
+
+		replace ul_platz = 4 if v_119==1
+		replace ll_platz = 2 if v_119==1
+
+		replace ul_platz = 8 if v_127==1
+		replace ll_platz = 4 if v_127==1
+
+		replace ll_platz = 8 if v_66==0 & v_95==0 & v_103==0 & v_119==0 & v_127==0
+		replace ul_platz = . if v_66==0 & v_95==0 & v_103==0 & v_119==0 & v_127==0
+		
+		tab ll_platz, miss
+		tab ul_platz, miss
+
+
+	*Consulting
+
+		gen ul_bera = -999
+		gen ll_bera = -999
+		
+		replace ll_bera = . if v_67==1
+		replace ul_bera = 0 if v_67==1
+
+		replace ul_bera = 1 if v_96==1
+		replace ll_bera = 0 if v_96==1
+
+		replace ul_bera = 2 if v_104==1
+		replace ll_bera = 1 if v_104==1
+
+		replace ul_bera = 4 if v_120==1
+		replace ll_bera = 2 if v_120==1
+
+		replace ul_bera = 8 if v_128==1
+		replace ll_bera = 4 if v_128==1
+
+		replace ll_bera = 8 if v_67==0 & v_96==0 & v_104==0 & v_120==0 & v_128==0
+		replace ul_bera = . if v_67==0 & v_96==0 & v_104==0 & v_120==0 & v_128==0
+		
+		tab ll_bera, miss
+		tab ul_bera, miss
+		
+
+	*Cow with calves
+			
+		gen ul_kalb = -999
+		gen ll_kalb = -999
+
+		replace ll_kalb = . if v_68==1
+		replace ul_kalb = 0 if v_68==1
+
+		replace ul_kalb = 1 if v_97==1
+		replace ll_kalb = 0 if v_97==1
+
+		replace ul_kalb = 2 if v_105==1
+		replace ll_kalb = 1 if v_105==1
+
+		replace ul_kalb = 4 if v_121==1
+		replace ll_kalb = 2 if v_121==1
+
+		replace ul_kalb = 8 if v_129==1
+		replace ll_kalb = 4 if v_129==1
+
+		replace ll_kalb = 8 if v_68==0 & v_97==0 & v_105==0 & v_121==0 & v_129==0
+		replace ul_kalb = . if v_68==0 & v_97==0 & v_105==0 & v_121==0 & v_129==0
+		
+		tab ll_kalb, miss
+		tab ul_kalb, miss
+
+
+	*No dehorning
+
+		gen ul_horn = -999
+		gen ll_horn = -999
+
+		replace ll_horn = . if v_69==1
+		replace ul_horn = 0 if v_69==1
+
+		replace ul_horn = 1 if v_98==1
+		replace ll_horn = 0 if v_98==1
+
+		replace ul_horn = 2 if v_106==1
+		replace ll_horn = 1 if v_106==1
+
+		replace ul_horn = 4 if v_122==1
+		replace ll_horn = 2 if v_122==1
+
+		replace ul_horn = 8 if v_130==1
+		replace ll_horn = 4 if v_130==1
+
+		replace ll_horn = 8 if v_69==0 & v_98==0 & v_106==0 & v_122==0 & v_130==0
+		replace ul_horn = . if v_69==0 & v_98==0 & v_106==0 & v_122==0 & v_130==0
+		
+		tab ll_horn, miss
+		tab ul_horn, miss
+		
+			* compare horn in conventional vs. organic farms
+			count if ul_horn == 0 
+			count if ul_horn == 0 & organic == 0 
+			count if ul_horn == 0 & organic == 1 
+			
+			tab ul_horn 
+			tab ul_horn if organic == 0, miss
+			tab ul_horn if organic == 1, miss
+			
+			sum cows if organic == 0
+			sum cows if organic == 1
+			di (140.7948-92.5)/140.7948
+			
+
+	*Size limit
+
+		gen ul_herd = -999
+		gen ll_herd = -999
+
+		replace ll_herd = . if v_70==1
+		replace ul_herd = 0 if v_70==1
+
+		replace ul_herd = 1 if v_99==1
+		replace ll_herd = 0 if v_99==1
+
+		replace ul_herd = 2 if v_107==1
+		replace ll_herd = 1 if v_107==1
+
+		replace ul_herd = 4 if v_123==1
+		replace ll_herd = 2 if v_123==1
+
+		replace ul_herd = 8 if v_131==1
+		replace ll_herd = 4 if v_131==1
+
+		replace ll_herd = 8 if v_70==0 & v_99==0 & v_107==0 & v_123==0 & v_131==0
+		replace ul_herd = . if v_70==0 & v_99==0 & v_107==0 & v_123==0 & v_131==0
+		
+		tab ll_herd, miss
+		tab ul_herd, miss
+
+
+	*Resting place-to-cow ratio > 1
+
+		gen ul_lieg = -999
+		gen ll_lieg = -999
+
+		replace ll_lieg = . if v_178==1
+		replace ul_lieg = 0 if v_178==1
+
+		replace ul_lieg = 1 if v_180==1
+		replace ll_lieg = 0 if v_180==1
+
+		replace ul_lieg = 2 if v_182==1
+		replace ll_lieg = 1 if v_182==1
+
+		replace ul_lieg = 4 if v_184==1
+		replace ll_lieg = 2 if v_184==1
+
+		replace ul_lieg = 8 if v_186==1
+		replace ll_lieg = 4 if v_186==1
+
+		replace ll_lieg = 8 if v_178==0 & v_180==0 & v_182==0 & v_184==0 & v_186==0
+		replace ul_lieg = . if v_178==0 & v_180==0 & v_182==0 & v_184==0 & v_186==0
+		
+		tab ll_lieg, miss
+		tab ul_lieg, miss
+
+
+	*Feeding place-to-cow ratio > 1
+	
+		gen ul_fress = -999
+		gen ll_fress = -999
+
+		replace ll_fress = . if v_179==1
+		replace ul_fress = 0 if v_179==1
+
+		replace ul_fress = 1 if v_181==1
+		replace ll_fress = 0 if v_181==1
+
+		replace ul_fress = 2 if v_183==1
+		replace ll_fress = 1 if v_183==1
+
+		replace ul_fress = 4 if v_185==1
+		replace ll_fress = 2 if v_185==1
+
+		replace ul_fress = 8 if v_187==1
+		replace ll_fress = 4 if v_187==1
+
+		replace ll_fress = 8 if v_179==0 & v_181==0 & v_183==0 & v_185==0 & v_187==0
+		replace ul_fress = . if v_179==0 & v_181==0 & v_183==0 & v_185==0 & v_187==0
+		
+		tab ll_fress, miss
+		tab ul_fress, miss
+
+		sum ul_weide - ll_fress /* (missings are treated as no upper (lower) limit */
+
+		
+***************************************************
+* Table 2: Desciriptive statistics for the sample *
+***************************************************
+		
+	sum cows milkyield uaa sh_grassland sh_rent labour sh_famlab organic fulltime age succ master
+	
+
+***********************************************************
+* Table 3: Desciriptive statistics for farmers' responses *
+***********************************************************
+
+	*Pasture access
+
+		tab ul_weide, miss
+
+	*Outdoors access
+
+		tab ul_lauf, miss
+
+	*Deep cubicles
+
+		tab ll_tief, miss
+
+	*Space >6m2
+		
+		tab ll_platz, miss
+
+	*Consulting
+		
+		tab ll_bera, miss
+
+	*Cow with calves
+		
+		tab ll_kalb, miss
+
+	*No dehorning
+
+		tab ll_horn, miss
+
+	*Size limit
+
+		tab ll_herd, miss
+
+	*Resting place-to-cow ratio >1
+
+		tab ll_lieg, miss
+
+	*Feeding place-to-cow ratio >1
+
+		tab ll_kalb, miss
+
+
+**************************************************
+* interval regression without covariates for WTC *
+**************************************************
+
+	intreg ll_weide ul_weide, robust
+		margins, predict(xb) post 
+		estimates store wtc_weide_c // Notation: "c" indicates "constant"
+	intreg ll_lauf ul_lauf, robust
+		margins, predict(xb) post 
+		estimates store wtc_lauf_c
+	intreg ll_tief ul_tief, robust
+		margins, predict(xb) post 
+		estimates store wtc_tief_c
+	intreg ll_platz ul_platz, robust
+		margins, predict(xb) post 
+		estimates store wtc_platz_c
+	intreg ll_bera ul_bera, robust
+		margins, predict(xb) post 
+		estimates store wtc_bera_c
+	intreg ll_kalb ul_kalb, robust
+		margins, predict(xb) post 
+		estimates store wtc_kalb_c
+	intreg ll_horn ul_horn, robust
+		margins, predict(xb) post 
+		estimates store wtc_horn_c
+	intreg ll_herd ul_herd, robust
+		margins, predict(xb) post 
+		estimates store wtc_herd_c
+	intreg ll_lieg ul_lieg, robust
+		margins, predict(xb) post 
+		estimates store wtc_lieg_c
+	intreg ll_fress ul_fress, robust
+		margins, predict(xb) post 
+		estimates store wtc_fress_c
+
+
+***************************************************
+* interval regression without covariates for CWTC *
+***************************************************
+
+	intreg ll_weide ul_weide if v_63==0, robust
+		margins, predict(xb) post 
+		estimates store cwtc_weide_c // notation: "cwtc" indicates "conditional WTC"
+	intreg ll_lauf ul_lauf if v_64==0, robust
+		margins, predict(xb) post 
+		estimates store cwtc_lauf_c
+	intreg ll_tief ul_tief if v_65==0, robust
+		margins, predict(xb) post 
+		estimates store cwtc_tief_c
+	intreg ll_platz ul_platz if v_66==0, robust
+		margins, predict(xb) post 
+		estimates store cwtc_platz_c
+	intreg ll_bera ul_bera if v_67==0, robust
+		margins, predict(xb) post 
+		estimates store cwtc_bera_c
+	intreg ll_kalb ul_kalb if v_68==0, robust
+		margins, predict(xb) post 
+		estimates store cwtc_kalb_c
+	intreg ll_horn ul_horn if v_69==0, robust
+		margins, predict(xb) post 
+		estimates store cwtc_horn_c
+	intreg ll_herd ul_herd if v_70==0, robust
+		margins, predict(xb) post 
+		estimates store cwtc_herd_c
+	intreg ll_lieg ul_lieg if v_178==0, robust
+		margins, predict(xb) post 
+		estimates store cwtc_lieg_c
+	intreg ll_fress ul_fress if v_179==0, robust
+		margins, predict(xb) post 
+		estimates store cwtc_fress_c
+
+
+***********************************************
+* interval regression with covariates for WTC *
+***********************************************
+				             
+	intreg ll_weide ul_weide cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1, robust
+		margins, predict(xb) post 
+		estimates store wtc_weide_v	// notation: "v" indicates "variable" (i.e., observation-specific)	
+	intreg ll_lauf ul_lauf cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1, robust
+		margins, predict(xb) post 
+		estimates store wtc_lauf_v
+	intreg ll_tief ul_tief cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1, robust
+		margins, predict(xb) post 
+		estimates store wtc_tief_v
+	intreg ll_platz ul_platz cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1, robust
+		margins, predict(xb) post 
+		estimates store wtc_platz_v
+	intreg ll_bera ul_bera cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1, robust
+		margins, predict(xb) post 
+		estimates store wtc_bera_v
+	intreg ll_kalb ul_kalb cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1, robust
+		margins, predict(xb) post 
+		estimates store wtc_kalb_v
+	intreg ll_horn ul_horn cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1, robust
+		margins, predict(xb) post 
+		estimates store wtc_horn_v
+	intreg ll_herd ul_herd cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1, robust
+		margins, predict(xb) post 
+		estimates store wtc_herd_v
+	intreg ll_lieg ul_lieg cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1, robust
+		margins, predict(xb) post 
+		estimates store wtc_lieg_v
+	intreg ll_fress ul_fress cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1, robust
+		margins, predict(xb) post 
+		estimates store wtc_fress_v
+
+*******************************************************************
+* Robustness check: intervall regressions excluding organic farms *
+*******************************************************************
+	
+	*Note: For the non-organic subsample, I must drop regional dummies where there is only one non-organic farm:
+		
+		tab plz1 if organic == 0
+		tab plz1, gen(regdum)
+		tab regdum7 if organic == 0 /* --> exclude this one in regression */
+				
+	intreg ll_weide ul_weide cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10 if organic == 0, robust
+	intreg ll_lauf ul_lauf cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10 if organic == 0, robust
+	intreg ll_tief ul_tief cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10 if organic == 0, robust
+	intreg ll_platz ul_platz cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10 if organic == 0, robust
+	intreg ll_bera ul_bera cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10 if organic == 0, robust 
+	intreg ll_kalb ul_kalb cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10 if organic == 0, robust
+	intreg ll_horn ul_horn cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10 if organic == 0, robust 
+	intreg ll_herd ul_herd cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10 if organic == 0, robust
+	intreg ll_lieg ul_lieg cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10 if organic == 0, robust 
+	intreg ll_fress ul_fress cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10 if organic == 0, robust 
+							  
+	  
+*****************************************************
+* Table 4: Interval regression results, full sample *
+*****************************************************
+	
+		*Assign variable labels
+			
+			label var cows "Herd size"
+			label var uaa "UAA"
+			label var sh_grassland "Share grassland"
+			label var sh_rent "Share rented land"
+			label var sh_famlab "Share family labour"
+			label var fulltime "Full-time (1 if yes 0 otherwise)"
+			label var succ "Successor (1 if yes 0 otherwise)"
+			label var age "Farmer's age"
+			label var master "Higher education (1 if yes 0 otherwise)"
+
+		*Indicate .csv file path
+		
+			file open report using "Output files/tab4_interval regressions.csv", write replace
+
+		*Table name in A1
+		
+			file write report "Interval regression results" _n
+			
+		*Fill out first and second row (names of dependent variables)
+		
+			file write report "Dependent,'(1),'(2),'(3),'(4),'(5),'(6),'(7),'(8),'(9),'(10)" _n
+			file write report "variable,Pasture,Outdoors,Deep cubicles, Space>6m2, Consulting, Cow w. calves, No dehorning, Size limit, Add. resting area, Add. feeding area" _n
+
+		* Fill out first column (names of independent variables)
+		
+			loc yvars weide lauf tief platz bera kalb horn herd lieg fress
+			loc xvars cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master
+			
+			foreach xvar of loc xvars {
+				loc lbl_`xvar': var label `xvar'
+				}
+					
+		* Estimate and save regression statistics	
+		
+			foreach yvar of loc yvars {
+				
+				*regression and log-likelihood
+				qui intreg ll_`yvar' ul_`yvar' `xvars' ib8.plz1, robust
+				loc logl_`yvar' = string(e(ll), "%9.3f")
+				
+				*parameter estimates
+				foreach xvar of loc xvars {
+					loc coeff_`yvar'_`xvar' = string(_b[`xvar'], "%9.3f")
+					}
+					loc coeff_`yvar'_cons = string(_b[_cons], "%9.3f")
+					
+				*significance
+				local dof = 252 - 19 // degrees of freedoms calculated manually because Stata does not store them
+				foreach xvar of loc xvars {
+					loc pval_`yvar'_`xvar'  = (2 * ttail(`dof', abs(_b[`xvar']/_se[`xvar'])))
+					di `pval_`yvar'_`xvar''
+					if `pval_`yvar'_`xvar'' > 0.10 {
+						loc prob_`yvar'_`xvar' ""
+						}
+					else if `pval_`yvar'_`xvar'' <= 0.10 & `pval_`yvar'_`xvar'' > 0.05 {
+						loc prob_`yvar'_`xvar' "*"
+						}
+					else if `pval_`yvar'_`xvar'' <= 0.05 & `pval_`yvar'_`xvar'' > 0.01 {
+						loc prob_`yvar'_`xvar' "**"
+						}
+					else if `pval_`yvar'_`xvar'' <= 0.01 {
+						loc prob_`yvar'_`xvar' "***"
+						}
+				}
+				loc pval_`yvar'_cons  = (2 * ttail(`dof', abs(_b[_cons]/_se[_cons])))
+
+					if `pval_`yvar'_cons' > 0.10 {
+						loc prob_`yvar'_cons ""
+						}
+					else if `pval_`yvar'_cons' <= 0.10 & `pval_`yvar'_cons' > 0.05 {
+						loc prob_`yvar'_cons "*"
+						}
+					else if `pval_`yvar'_cons' <= 0.05 & `pval_`yvar'_cons' > 0.01 {
+						loc prob_`yvar'_cons "**"
+						}
+					else if `pval_`yvar'_cons' <= 0.01 {
+						loc prob_`yvar'_cons "***"
+						}
+				
+				*standard errors
+				foreach xvar of loc xvars {
+					loc se_`yvar'_`xvar' = string(_se[`xvar'], "%9.3f")
+				}
+				loc se_`yvar'_cons = string(_se[_cons], "%9.3f")
+				
+			}
+			
+			*Insert estimates into table
+																																																						
+				file write report "`lbl_cows', `coeff_weide_cows' `prob_weide_cows', `coeff_lauf_cows' `prob_lauf_cows', `coeff_tief_cows' `prob_tief_cows', `coeff_platz_cows' `prob_platz_cows', `coeff_bera_cows' `prob_bera_cows', `coeff_kalb_cows' `prob_kalb_cows', `coeff_horn_cows' `prob_horn_cows', `coeff_herd_cows' `prob_herd_cows', `coeff_lieg_cows' `prob_lieg_cows', `coeff_fress_cows' `prob_fress_cows'" _n 
+				file write report ", '(`se_weide_cows'),'(`se_lauf_cows'),'(`se_tief_cows'),'(`se_platz_cows'),'(`se_bera_cows'),'(`se_kalb_cows'),'(`se_horn_cows'),'(`se_herd_cows'),'(`se_lieg_cows'),'(`se_fress_cows')" _n 
+				file write report "`lbl_uaa', `coeff_weide_uaa' `prob_weide_uaa', `coeff_lauf_uaa' `prob_lauf_uaa', `coeff_tief_uaa' `prob_tief_uaa', `coeff_platz_uaa' `prob_platz_uaa', `coeff_bera_uaa' `prob_bera_uaa', `coeff_kalb_uaa' `prob_kalb_uaa', `coeff_horn_uaa' `prob_horn_uaa', `coeff_herd_uaa' `prob_herd_uaa', `coeff_lieg_uaa' `prob_lieg_uaa', `coeff_fress_uaa' `prob_fress_uaa'" _n 
+				file write report ", '(`se_weide_uaa'),'(`se_lauf_uaa'),'(`se_tief_uaa'),'(`se_platz_uaa'),'(`se_bera_uaa'),'(`se_kalb_uaa'),'(`se_horn_uaa'),'(`se_herd_uaa'),'(`se_lieg_uaa'),'(`se_fress_uaa')" _n 
+				file write report "`lbl_sh_grassland', `coeff_weide_sh_grassland' `prob_weide_sh_grassland', `coeff_lauf_sh_grassland' `prob_lauf_sh_grassland', `coeff_tief_sh_grassland' `prob_tief_sh_grassland', `coeff_platz_sh_grassland' `prob_platz_sh_grassland', `coeff_bera_sh_grassland' `prob_bera_sh_grassland', `coeff_kalb_sh_grassland' `prob_kalb_sh_grassland', `coeff_horn_sh_grassland' `prob_horn_sh_grassland', `coeff_herd_sh_grassland' `prob_herd_sh_grassland', `coeff_lieg_sh_grassland' `prob_lieg_sh_grassland', `coeff_fress_sh_grassland' `prob_fress_sh_grassland'" _n 
+				file write report ", '(`se_weide_sh_grassland'),'(`se_lauf_sh_grassland'),'(`se_tief_sh_grassland'),'(`se_platz_sh_grassland'),'(`se_bera_sh_grassland'),'(`se_kalb_sh_grassland'),'(`se_horn_sh_grassland'),'(`se_herd_sh_grassland'),'(`se_lieg_sh_grassland'),'(`se_fress_sh_grassland')" _n 
+				file write report "`lbl_sh_rent', `coeff_weide_sh_rent' `prob_weide_sh_rent', `coeff_lauf_sh_rent' `prob_lauf_sh_rent', `coeff_tief_sh_rent' `prob_tief_sh_rent', `coeff_platz_sh_rent' `prob_platz_sh_rent', `coeff_bera_sh_rent' `prob_bera_sh_rent', `coeff_kalb_sh_rent' `prob_kalb_sh_rent', `coeff_horn_sh_rent' `prob_horn_sh_rent', `coeff_herd_sh_rent' `prob_herd_sh_rent', `coeff_lieg_sh_rent' `prob_lieg_sh_rent', `coeff_fress_sh_rent' `prob_fress_sh_rent'" _n 
+				file write report ", '(`se_weide_sh_rent'),'(`se_lauf_sh_rent'),'(`se_tief_sh_rent'),'(`se_platz_sh_rent'),'(`se_bera_sh_rent'),'(`se_kalb_sh_rent'),'(`se_horn_sh_rent'),'(`se_herd_sh_rent'),'(`se_lieg_sh_rent'),'(`se_fress_sh_rent')" _n 
+				file write report "`lbl_sh_famlab', `coeff_weide_sh_famlab' `prob_weide_sh_famlab', `coeff_lauf_sh_famlab' `prob_lauf_sh_famlab', `coeff_tief_sh_famlab' `prob_tief_sh_famlab', `coeff_platz_sh_famlab' `prob_platz_sh_famlab', `coeff_bera_sh_famlab' `prob_bera_sh_famlab', `coeff_kalb_sh_famlab' `prob_kalb_sh_famlab', `coeff_horn_sh_famlab' `prob_horn_sh_famlab', `coeff_herd_sh_famlab' `prob_herd_sh_famlab', `coeff_lieg_sh_famlab' `prob_lieg_sh_famlab', `coeff_fress_sh_famlab' `prob_fress_sh_famlab'" _n 
+				file write report ", '(`se_weide_sh_famlab'),'(`se_lauf_sh_famlab'),'(`se_tief_sh_famlab'),'(`se_platz_sh_famlab'),'(`se_bera_sh_famlab'),'(`se_kalb_sh_famlab'),'(`se_horn_sh_famlab'),'(`se_herd_sh_famlab'),'(`se_lieg_sh_famlab'),'(`se_fress_sh_famlab')" _n 
+				file write report "`lbl_fulltime', `coeff_weide_fulltime' `prob_weide_fulltime', `coeff_lauf_fulltime' `prob_lauf_fulltime', `coeff_tief_fulltime' `prob_tief_fulltime', `coeff_platz_fulltime' `prob_platz_fulltime', `coeff_bera_fulltime' `prob_bera_fulltime', `coeff_kalb_fulltime' `prob_kalb_fulltime', `coeff_horn_fulltime' `prob_horn_fulltime', `coeff_herd_fulltime' `prob_herd_fulltime', `coeff_lieg_fulltime' `prob_lieg_fulltime', `coeff_fress_fulltime' `prob_fress_fulltime'" _n 
+				file write report ", '(`se_weide_fulltime'),'(`se_lauf_fulltime'),'(`se_tief_fulltime'),'(`se_platz_fulltime'),'(`se_bera_fulltime'),'(`se_kalb_fulltime'),'(`se_horn_fulltime'),'(`se_herd_fulltime'),'(`se_lieg_fulltime'),'(`se_fress_fulltime')" _n 
+				file write report "`lbl_succ', `coeff_weide_succ' `prob_weide_succ', `coeff_lauf_succ' `prob_lauf_succ', `coeff_tief_succ' `prob_tief_succ', `coeff_platz_succ' `prob_platz_succ', `coeff_bera_succ' `prob_bera_succ', `coeff_kalb_succ' `prob_kalb_succ', `coeff_horn_succ' `prob_horn_succ', `coeff_herd_succ' `prob_herd_succ', `coeff_lieg_succ' `prob_lieg_succ', `coeff_fress_succ' `prob_fress_succ'" _n 
+				file write report ", '(`se_weide_succ'),'(`se_lauf_succ'),'(`se_tief_succ'),'(`se_platz_succ'),'(`se_bera_succ'),'(`se_kalb_succ'),'(`se_horn_succ'),'(`se_herd_succ'),'(`se_lieg_succ'),'(`se_fress_succ')" _n 
+				file write report "`lbl_age', `coeff_weide_age' `prob_weide_age', `coeff_lauf_age' `prob_lauf_age', `coeff_tief_age' `prob_tief_age', `coeff_platz_age' `prob_platz_age', `coeff_bera_age' `prob_bera_age', `coeff_kalb_age' `prob_kalb_age', `coeff_horn_age' `prob_horn_age', `coeff_herd_age' `prob_herd_age', `coeff_lieg_age' `prob_lieg_age', `coeff_fress_age' `prob_fress_age'" _n 
+				file write report ", '(`se_weide_age'),'(`se_lauf_age'),'(`se_tief_age'),'(`se_platz_age'),'(`se_bera_age'),'(`se_kalb_age'),'(`se_horn_age'),'(`se_herd_age'),'(`se_lieg_age'),'(`se_fress_age')" _n 
+				file write report "`lbl_master', `coeff_weide_master' `prob_weide_master', `coeff_lauf_master' `prob_lauf_master', `coeff_tief_master' `prob_tief_master', `coeff_platz_master' `prob_platz_master', `coeff_bera_master' `prob_bera_master', `coeff_kalb_master' `prob_kalb_master', `coeff_horn_master' `prob_horn_master', `coeff_herd_master' `prob_herd_master', `coeff_lieg_master' `prob_lieg_master', `coeff_fress_master' `prob_fress_master'" _n 
+				file write report ", '(`se_weide_master'),'(`se_lauf_master'),'(`se_tief_master'),'(`se_platz_master'),'(`se_bera_master'),'(`se_kalb_master'),'(`se_horn_master'),'(`se_herd_master'),'(`se_lieg_master'),'(`se_fress_master')" _n 
+				file write report "Constant term, `coeff_weide_cons' `prob_weide_cons', `coeff_lauf_cons' `prob_lauf_cons', `coeff_tief_cons' `prob_tief_cons', `coeff_platz_cons' `prob_platz_cons', `coeff_bera_cons' `prob_bera_cons', `coeff_kalb_cons' `prob_kalb_cons', `coeff_horn_cons' `prob_horn_cons', `coeff_herd_cons' `prob_herd_cons', `coeff_lieg_cons' `prob_lieg_cons', `coeff_fress_cons' `prob_fress_cons'" _n 
+				file write report ", '(`se_weide_cons'),'(`se_lauf_cons'),'(`se_tief_cons'),'(`se_platz_cons'),'(`se_bera_cons'),'(`se_kalb_cons'),'(`se_horn_cons'),'(`se_herd_cons'),'(`se_lieg_cons'),'(`se_fress_cons')" _n 
+				file write report "Log likelihood,`logl_weide',`logl_lauf',`logl_tief',`logl_platz',`logl_bera',`logl_kalb',`logl_horn',`logl_herd',`logl_lieg',`logl_fress', "
+				di "`var' printed"
+				
+		*Close file
+		
+			file close report
+
+
+******************************************************************
+* Table A1: Interval regression results, excluding organic farms *
+******************************************************************
+		
+		*Note: Stars must be corrected manually
+		
+		*Indicate .csv file path
+		
+			file open report using "Output files/tabA1_interval regressions_noorganic.csv", write replace
+
+		*Table name in A1
+		
+			file write report "Interval regression results for the subset of conventional farms" _n
+			
+		*Fill out first and second row (names of dependent variables)
+		
+			file write report "Dependent,'(1),'(2),'(3),'(4),'(5),'(6),'(7),'(8),'(9),'(10)" _n
+			file write report "variable,Pasture,Outdoors,Deep cubicles, Space>6m2, Consulting, Cow w. calves, No dehorning, Size limit, Add. resting area, Add. feeding area" _n
+
+		* Fill out first column (names of independent variables)
+		
+			loc yvars weide lauf tief platz bera kalb horn herd lieg fress
+			loc xvars cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master regdum1 regdum2 regdum3 regdum4 regdum5 regdum6 regdum9 regdum10
+			
+			foreach xvar of loc xvars {
+				loc lbl_`xvar': var label `xvar'
+				}
+					
+		* Estimate and save regression statistics	
+		
+			foreach yvar of loc yvars {
+				
+				*regression and log-likelihood
+				qui intreg ll_`yvar' ul_`yvar' `xvars' if organic == 0, robust
+				loc logl_`yvar' = string(e(ll), "%9.3f")
+				
+				*parameter estimates
+				foreach xvar of loc xvars {
+					loc coeff_`yvar'_`xvar' = string(_b[`xvar'], "%9.3f")
+					}
+					loc coeff_`yvar'_cons = string(_b[_cons], "%9.3f")
+					
+				*significance
+				local dof = 252 - 18 // degrees of freedoms calculated manually because Stata does not store them
+				foreach xvar of loc xvars {
+					loc pval_`yvar'_`xvar'  = (2 * ttail(`dof', abs(_b[`xvar']/_se[`xvar'])))
+
+					if `pval_`yvar'_`xvar'' > 0.10 {
+						loc prob_`yvar'_`xvar' ""
+						}
+					else if `pval_`yvar'_`xvar'' <= 0.10 & `pval_`yvar'_`xvar'' > 0.05 {
+						loc prob_`yvar'_`xvar' "*"
+						}
+					else if `pval_`yvar'_`xvar'' <= 0.05 & `pval_`yvar'_`xvar'' > 0.01 {
+						loc prob_`yvar'_`xvar' "**"
+						}
+					else if `pval_`yvar'_`xvar'' <= 0.01 {
+						loc prob_`yvar'_`xvar' "***"
+						}
+				}
+				loc pval_`yvar'_cons  = (2 * ttail(`dof', abs(_b[_cons]/_se[_cons])))
+
+					if `pval_`yvar'_cons' > 0.10 {
+						loc prob_`yvar'_cons ""
+						}
+					else if `pval_`yvar'_cons' <= 0.10 & `pval_`yvar'_cons' > 0.05 {
+						loc prob_`yvar'_cons "*"
+						}
+					else if `pval_`yvar'_cons' <= 0.05 & `pval_`yvar'_cons' > 0.01 {
+						loc prob_`yvar'_cons "**"
+						}
+					else if `pval_`yvar'_cons' <= 0.01 {
+						loc prob_`yvar'_cons "***"
+						}
+				
+				*standard errors
+				foreach xvar of loc xvars {
+					loc se_`yvar'_`xvar' = string(_se[`xvar'], "%9.3f")
+				}
+				loc se_`yvar'_cons = string(_se[_cons], "%9.3f")
+				
+			}
+			
+			*Insert estimates into table
+																																																						
+				file write report "`lbl_cows', `coeff_weide_cows' `prob_weide_cows', `coeff_lauf_cows' `prob_lauf_cows', `coeff_tief_cows' `prob_tief_cows', `coeff_platz_cows' `prob_platz_cows', `coeff_bera_cows' `prob_bera_cows', `coeff_kalb_cows' `prob_kalb_cows', `coeff_horn_cows' `prob_horn_cows', `coeff_herd_cows' `prob_herd_cows', `coeff_lieg_cows' `prob_lieg_cows', `coeff_fress_cows' `prob_fress_cows'" _n 
+				file write report ", '(`se_weide_cows'),'(`se_lauf_cows'),'(`se_tief_cows'),'(`se_platz_cows'),'(`se_bera_cows'),'(`se_kalb_cows'),'(`se_horn_cows'),'(`se_herd_cows'),'(`se_lieg_cows'),'(`se_fress_cows')" _n 
+				file write report "`lbl_uaa', `coeff_weide_uaa' `prob_weide_uaa', `coeff_lauf_uaa' `prob_lauf_uaa', `coeff_tief_uaa' `prob_tief_uaa', `coeff_platz_uaa' `prob_platz_uaa', `coeff_bera_uaa' `prob_bera_uaa', `coeff_kalb_uaa' `prob_kalb_uaa', `coeff_horn_uaa' `prob_horn_uaa', `coeff_herd_uaa' `prob_herd_uaa', `coeff_lieg_uaa' `prob_lieg_uaa', `coeff_fress_uaa' `prob_fress_uaa'" _n 
+				file write report ", '(`se_weide_uaa'),'(`se_lauf_uaa'),'(`se_tief_uaa'),'(`se_platz_uaa'),'(`se_bera_uaa'),'(`se_kalb_uaa'),'(`se_horn_uaa'),'(`se_herd_uaa'),'(`se_lieg_uaa'),'(`se_fress_uaa')" _n 
+				file write report "`lbl_sh_grassland', `coeff_weide_sh_grassland' `prob_weide_sh_grassland', `coeff_lauf_sh_grassland' `prob_lauf_sh_grassland', `coeff_tief_sh_grassland' `prob_tief_sh_grassland', `coeff_platz_sh_grassland' `prob_platz_sh_grassland', `coeff_bera_sh_grassland' `prob_bera_sh_grassland', `coeff_kalb_sh_grassland' `prob_kalb_sh_grassland', `coeff_horn_sh_grassland' `prob_horn_sh_grassland', `coeff_herd_sh_grassland' `prob_herd_sh_grassland', `coeff_lieg_sh_grassland' `prob_lieg_sh_grassland', `coeff_fress_sh_grassland' `prob_fress_sh_grassland'" _n 
+				file write report ", '(`se_weide_sh_grassland'),'(`se_lauf_sh_grassland'),'(`se_tief_sh_grassland'),'(`se_platz_sh_grassland'),'(`se_bera_sh_grassland'),'(`se_kalb_sh_grassland'),'(`se_horn_sh_grassland'),'(`se_herd_sh_grassland'),'(`se_lieg_sh_grassland'),'(`se_fress_sh_grassland')" _n 
+				file write report "`lbl_sh_rent', `coeff_weide_sh_rent' `prob_weide_sh_rent', `coeff_lauf_sh_rent' `prob_lauf_sh_rent', `coeff_tief_sh_rent' `prob_tief_sh_rent', `coeff_platz_sh_rent' `prob_platz_sh_rent', `coeff_bera_sh_rent' `prob_bera_sh_rent', `coeff_kalb_sh_rent' `prob_kalb_sh_rent', `coeff_horn_sh_rent' `prob_horn_sh_rent', `coeff_herd_sh_rent' `prob_herd_sh_rent', `coeff_lieg_sh_rent' `prob_lieg_sh_rent', `coeff_fress_sh_rent' `prob_fress_sh_rent'" _n 
+				file write report ", '(`se_weide_sh_rent'),'(`se_lauf_sh_rent'),'(`se_tief_sh_rent'),'(`se_platz_sh_rent'),'(`se_bera_sh_rent'),'(`se_kalb_sh_rent'),'(`se_horn_sh_rent'),'(`se_herd_sh_rent'),'(`se_lieg_sh_rent'),'(`se_fress_sh_rent')" _n 
+				file write report "`lbl_sh_famlab', `coeff_weide_sh_famlab' `prob_weide_sh_famlab', `coeff_lauf_sh_famlab' `prob_lauf_sh_famlab', `coeff_tief_sh_famlab' `prob_tief_sh_famlab', `coeff_platz_sh_famlab' `prob_platz_sh_famlab', `coeff_bera_sh_famlab' `prob_bera_sh_famlab', `coeff_kalb_sh_famlab' `prob_kalb_sh_famlab', `coeff_horn_sh_famlab' `prob_horn_sh_famlab', `coeff_herd_sh_famlab' `prob_herd_sh_famlab', `coeff_lieg_sh_famlab' `prob_lieg_sh_famlab', `coeff_fress_sh_famlab' `prob_fress_sh_famlab'" _n 
+				file write report ", '(`se_weide_sh_famlab'),'(`se_lauf_sh_famlab'),'(`se_tief_sh_famlab'),'(`se_platz_sh_famlab'),'(`se_bera_sh_famlab'),'(`se_kalb_sh_famlab'),'(`se_horn_sh_famlab'),'(`se_herd_sh_famlab'),'(`se_lieg_sh_famlab'),'(`se_fress_sh_famlab')" _n 
+				file write report "`lbl_fulltime', `coeff_weide_fulltime' `prob_weide_fulltime', `coeff_lauf_fulltime' `prob_lauf_fulltime', `coeff_tief_fulltime' `prob_tief_fulltime', `coeff_platz_fulltime' `prob_platz_fulltime', `coeff_bera_fulltime' `prob_bera_fulltime', `coeff_kalb_fulltime' `prob_kalb_fulltime', `coeff_horn_fulltime' `prob_horn_fulltime', `coeff_herd_fulltime' `prob_herd_fulltime', `coeff_lieg_fulltime' `prob_lieg_fulltime', `coeff_fress_fulltime' `prob_fress_fulltime'" _n 
+				file write report ", '(`se_weide_fulltime'),'(`se_lauf_fulltime'),'(`se_tief_fulltime'),'(`se_platz_fulltime'),'(`se_bera_fulltime'),'(`se_kalb_fulltime'),'(`se_horn_fulltime'),'(`se_herd_fulltime'),'(`se_lieg_fulltime'),'(`se_fress_fulltime')" _n 
+				file write report "`lbl_succ', `coeff_weide_succ' `prob_weide_succ', `coeff_lauf_succ' `prob_lauf_succ', `coeff_tief_succ' `prob_tief_succ', `coeff_platz_succ' `prob_platz_succ', `coeff_bera_succ' `prob_bera_succ', `coeff_kalb_succ' `prob_kalb_succ', `coeff_horn_succ' `prob_horn_succ', `coeff_herd_succ' `prob_herd_succ', `coeff_lieg_succ' `prob_lieg_succ', `coeff_fress_succ' `prob_fress_succ'" _n 
+				file write report ", '(`se_weide_succ'),'(`se_lauf_succ'),'(`se_tief_succ'),'(`se_platz_succ'),'(`se_bera_succ'),'(`se_kalb_succ'),'(`se_horn_succ'),'(`se_herd_succ'),'(`se_lieg_succ'),'(`se_fress_succ')" _n 
+				file write report "`lbl_age', `coeff_weide_age' `prob_weide_age', `coeff_lauf_age' `prob_lauf_age', `coeff_tief_age' `prob_tief_age', `coeff_platz_age' `prob_platz_age', `coeff_bera_age' `prob_bera_age', `coeff_kalb_age' `prob_kalb_age', `coeff_horn_age' `prob_horn_age', `coeff_herd_age' `prob_herd_age', `coeff_lieg_age' `prob_lieg_age', `coeff_fress_age' `prob_fress_age'" _n 
+				file write report ", '(`se_weide_age'),'(`se_lauf_age'),'(`se_tief_age'),'(`se_platz_age'),'(`se_bera_age'),'(`se_kalb_age'),'(`se_horn_age'),'(`se_herd_age'),'(`se_lieg_age'),'(`se_fress_age')" _n 
+				file write report "`lbl_master', `coeff_weide_master' `prob_weide_master', `coeff_lauf_master' `prob_lauf_master', `coeff_tief_master' `prob_tief_master', `coeff_platz_master' `prob_platz_master', `coeff_bera_master' `prob_bera_master', `coeff_kalb_master' `prob_kalb_master', `coeff_horn_master' `prob_horn_master', `coeff_herd_master' `prob_herd_master', `coeff_lieg_master' `prob_lieg_master', `coeff_fress_master' `prob_fress_master'" _n 
+				file write report ", '(`se_weide_master'),'(`se_lauf_master'),'(`se_tief_master'),'(`se_platz_master'),'(`se_bera_master'),'(`se_kalb_master'),'(`se_horn_master'),'(`se_herd_master'),'(`se_lieg_master'),'(`se_fress_master')" _n 
+				file write report "Constant term, `coeff_weide_cons' `prob_weide_cons', `coeff_lauf_cons' `prob_lauf_cons', `coeff_tief_cons' `prob_tief_cons', `coeff_platz_cons' `prob_platz_cons', `coeff_bera_cons' `prob_bera_cons', `coeff_kalb_cons' `prob_kalb_cons', `coeff_horn_cons' `prob_horn_cons', `coeff_herd_cons' `prob_herd_cons', `coeff_lieg_cons' `prob_lieg_cons', `coeff_fress_cons' `prob_fress_cons'" _n 
+				file write report ", '(`se_weide_cons'),'(`se_lauf_cons'),'(`se_tief_cons'),'(`se_platz_cons'),'(`se_bera_cons'),'(`se_kalb_cons'),'(`se_horn_cons'),'(`se_herd_cons'),'(`se_lieg_cons'),'(`se_fress_cons')" _n 
+				file write report "Log likelihood,`logl_weide',`logl_lauf',`logl_tief',`logl_platz',`logl_bera',`logl_kalb',`logl_horn',`logl_herd',`logl_lieg',`logl_fress', "
+				di "`var' printed"
+				
+		*Close file
+		
+			file close report		
+						
+				
+************************************************
+* interval regression with covariates for CWTC *
+************************************************
+
+		intreg ll_weide ul_weide cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1 if v_63==0, robust
+			margins, predict(xb) post 
+			estimates store cwtc_weide_v
+		intreg ll_lauf ul_lauf cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1 if v_64==0, robust
+			margins, predict(xb) post 
+			estimates store cwtc_lauf_v
+		intreg ll_tief ul_tief cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1 if v_65==0, robust
+			margins, predict(xb) post 
+			estimates store cwtc_tief_v
+		intreg ll_platz ul_platz cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1 if v_66==0, robust
+			margins, predict(xb) post 
+			estimates store cwtc_platz_v
+		intreg ll_bera ul_bera cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1 if v_67==0, robust
+			margins, predict(xb) post 
+			estimates store cwtc_bera_v
+		intreg ll_kalb ul_kalb cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1 if v_68==0, robust
+			margins, predict(xb) post 
+			estimates store cwtc_kalb_v
+		intreg ll_horn ul_horn cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1 if v_69==0, robust
+			margins, predict(xb) post 
+			estimates store cwtc_horn_v
+		intreg ll_herd ul_herd cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1 if v_70==0, robust
+			margins, predict(xb) post 
+			estimates store cwtc_herd_v
+		intreg ll_lieg ul_lieg cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1 if v_178==0, robust
+			margins, predict(xb) post 
+			estimates store cwtc_lieg_v
+		intreg ll_fress ul_fress cows uaa sh_grassland sh_rent sh_famlab fulltime succ age master ib8.plz1 if v_179==0, robust
+			margins, predict(xb) post 
+			estimates store cwtc_fress_v
+	
+	
+******************************************
+* Figure 2: WTC and CWTC with regressors *
+******************************************
+	
+	graph set window fontface "Times New Roman"	
+	coefplot ///
+		(wtc_weide_v, keep(_cons) offset(.2) rename(_cons = "Pasture access") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) label(Willingness to change (all farms)) ) /// 
+		(cwtc_weide_v, keep(_cons) offset(-.2) rename(_cons = "Pasture access") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) label(Conditional willingness to change (non-adopters)) ) /// 
+		(wtc_lauf_v, keep(_cons) offset(.2) rename(_cons = "Outdoors access") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_lauf_v, keep(_cons) offset(-.2) rename(_cons = "Outdoors access") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_tief_v, keep(_cons) offset(.2) rename(_cons = "Deep cubicles") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_tief_v, keep(_cons) offset(-.2) rename(_cons = "Deep cubicles") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_platz_v, keep(_cons) offset(.2) rename(_cons = "Space per cow>6m2") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_platz_v, keep(_cons) offset(-.2) rename(_cons = "Space per cow>6m2") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_bera_v, keep(_cons) offset(.2) rename(_cons = "Consultation") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_bera_v, keep(_cons) offset(-.2) rename(_cons = "Consultation") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_kalb_v, keep(_cons) offset(.2) rename(_cons = "Cow with calf") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_kalb_v, keep(_cons) offset(-.2) rename(_cons = "Cow with calf") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_horn_v, keep(_cons) offset(.2) rename(_cons = "No dehorning") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_horn_v, keep(_cons) offset(-.2) rename(_cons = "No dehorning") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_herd_v, keep(_cons) offset(.2) rename(_cons = "Size limit") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_herd_v, keep(_cons) offset(-.2) rename(_cons = "Size limit") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_lieg_v, keep(_cons) offset(.2) rename(_cons = "Resting place-to-cow ratio>1") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_lieg_v, keep(_cons) offset(-.2) rename(_cons = "Resting place-to-cow ratio>1") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_fress_v, keep(_cons) offset(.2) rename(_cons = "Feeding place-to-cow ratio>1") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_fress_v, keep(_cons) offset(-.2) rename(_cons = "Feeding place-to-cow ratio>1") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+	, levels(95) xline(0, lp(dash) lc(gray)) offset(0) fxsize(95) ///
+	  graphregion(color(white)) grid(b) ///
+	  mlabel(string(@b,"%9.1f")+cond(@pval<.01, "***", cond(@pval<.05, "**", cond(@pval<.1, "*", "")))) mlabcolor(black) mlabsize(vsmall) mlabpos(3) mlabgap(0) ///
+	  mlabposition(2) mlabc(black) sch(s1mono) legend(rows(3) region(lc(none))) ///
+	  title("WTC and CWTC estimates") saving("Output files/WTC_CWTC", replace)
+	
+	gr export "Output files/fig2_WTC_CWTC.png", replace
+	
+*********************************************
+* Figure A1: WTC and CWTC without regressors *
+*********************************************
+	
+	coefplot ///
+		(wtc_weide_c, keep(_cons) offset(.2) rename(_cons = "Pasture access") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) label(Willingness to change (all farms)) ) /// 
+		(cwtc_weide_c, keep(_cons) offset(-.2) rename(_cons = "Pasture access") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) label(Conditional willingness to change (non-adopters)) ) /// 
+		(wtc_lauf_c, keep(_cons) offset(.2) rename(_cons = "Outdoors access") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_lauf_c, keep(_cons) offset(-.2) rename(_cons = "Outdoors access") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_tief_c, keep(_cons) offset(.2) rename(_cons = "Deep cubicles") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_tief_c, keep(_cons) offset(-.2) rename(_cons = "Deep cubicles") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_platz_c, keep(_cons) offset(.2) rename(_cons = "Space per cow>6m2") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_platz_c, keep(_cons) offset(-.2) rename(_cons = "Space per cow>6m2") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_bera_c, keep(_cons) offset(.2) rename(_cons = "Consultation") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_bera_c, keep(_cons) offset(-.2) rename(_cons = "Consultation") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_kalb_c, keep(_cons) offset(.2) rename(_cons = "Cow with calf") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_kalb_c, keep(_cons) offset(-.2) rename(_cons = "Cow with calf") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_horn_c, keep(_cons) offset(.2) rename(_cons = "No dehorning") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_horn_c, keep(_cons) offset(-.2) rename(_cons = "No dehorning") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_herd_c, keep(_cons) offset(.2) rename(_cons = "Size limit") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_herd_c, keep(_cons) offset(-.2) rename(_cons = "Size limit") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_lieg_c, keep(_cons) offset(.2) rename(_cons = "Resting place-to-cow ratio>1") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_lieg_c, keep(_cons) offset(-.2) rename(_cons = "Resting place-to-cow ratio>1") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+		(wtc_fress_c, keep(_cons) offset(.2) rename(_cons = "Feeding place-to-cow ratio>1") mcolor(black) msize(small) ciopts(color(black)) m(d) mlabsize(small) nokey ) /// 
+		(cwtc_fress_c, keep(_cons) offset(-.2) rename(_cons = "Feeding place-to-cow ratio>1") mcolor(gray) msize(small) ciopts(color(gray)) m(d) mlabsize(small) nokey ) /// 
+	, levels(95) xline(0, lp(dash) lc(gray)) offset(0) fxsize(95) ///
+	  graphregion(color(white)) grid(b) ///
+	  mlabel(string(@b,"%9.1f")+cond(@pval<.01, "***", cond(@pval<.05, "**", cond(@pval<.1, "*", "")))) mlabcolor(black) mlabsize(vsmall) mlabpos(3) mlabgap(0) ///
+	  mlabposition(2) mlabc(black) sch(s1mono) legend(rows(3) region(lc(none))) ///
+	  title("WTC and CWTC estimates, no regressors") saving("Output files/WTC_CWTC_noregressors", replace)
+	
+	gr export "Output files/figA1_WTC_CWTC_noregressors.png", replace
+
+
+
+		
+*******
+* END *	
+*******
+		
